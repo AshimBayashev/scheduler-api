@@ -1,10 +1,12 @@
 import {
   IsBoolean,
   IsDateString,
+  IsIn,
   IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
+import { COLOR_PALETTE } from '../../common/color-palette';
 
 export class CreateEventDto {
   @IsString()
@@ -27,5 +29,6 @@ export class CreateEventDto {
 
   @IsOptional()
   @IsString()
+  @IsIn([...COLOR_PALETTE])
   color?: string;
 }

@@ -1,18 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
+import { pickRandomColor } from '../common/color-palette';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventEntity } from './event.entity';
-
-const EVENT_COLORS = [
-  '#6264A7',
-  '#0078D4',
-  '#107C10',
-  '#D83B01',
-  '#8764B8',
-  '#038387',
-];
 
 @Injectable()
 export class EventsService {
@@ -49,9 +41,7 @@ export class EventsService {
       start: new Date(dto.start),
       end: new Date(dto.end),
       allDay: dto.allDay ?? false,
-      color:
-        dto.color ??
-        EVENT_COLORS[Math.floor(Math.random() * EVENT_COLORS.length)],
+      color: dto.color ?? pickRandomColor(),
       userId,
     });
     return this.eventsRepo.save(event);

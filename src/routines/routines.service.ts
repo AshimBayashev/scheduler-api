@@ -1,11 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { pickRandomColor } from '../common/color-palette';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { UpdateRoutineDto } from './dto/update-routine.dto';
 import { Routine } from './routine.entity';
-
-const ROUTINE_COLORS = ['#038387', '#107C10', '#8764B8', '#0078D4', '#D83B01', '#6264A7'];
 
 @Injectable()
 export class RoutinesService {
@@ -37,9 +36,7 @@ export class RoutinesService {
       startTime: dto.startTime,
       durationMinutes: dto.durationMinutes ?? 30,
       daysOfWeek: days,
-      color:
-        dto.color ??
-        ROUTINE_COLORS[Math.floor(Math.random() * ROUTINE_COLORS.length)],
+      color: dto.color ?? pickRandomColor(),
       userId,
     });
     return this.routinesRepo.save(routine);

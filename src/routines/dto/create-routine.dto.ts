@@ -1,6 +1,7 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsIn,
   IsInt,
   IsOptional,
   IsString,
@@ -9,6 +10,7 @@ import {
   MinLength,
   Matches,
 } from 'class-validator';
+import { COLOR_PALETTE } from '../../common/color-palette';
 
 export class CreateRoutineDto {
   @IsString()
@@ -37,5 +39,6 @@ export class CreateRoutineDto {
 
   @IsOptional()
   @IsString()
+  @IsIn([...COLOR_PALETTE])
   color?: string;
 }
