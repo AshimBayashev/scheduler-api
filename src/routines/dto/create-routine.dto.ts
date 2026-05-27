@@ -26,8 +26,8 @@ export class CreateRoutineDto {
 
   @IsOptional()
   @IsInt()
-  @Min(5)
-  @Max(720)
+  @Min(5, { message: 'Длительность должна быть от 5 до 720 минут' })
+  @Max(720, { message: 'Длительность должна быть от 5 до 720 минут' })
   durationMinutes?: number;
 
   @IsArray()

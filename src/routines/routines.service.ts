@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { pickRandomColor } from '../common/color-palette';
@@ -30,11 +30,14 @@ export class RoutinesService {
 
   create(userId: string, dto: CreateRoutineDto) {
     const days = [...new Set(dto.daysOfWeek)].sort((a, b) => a - b);
+    const durationMinutes = dto.durationMinutes ?? 30;
+    this.assertDurationMinutes(durationMinutes);
+
     const routine = this.routinesRepo.create({
       title: dto.title,
       description: dto.description?.trim() || null,
       startTime: dto.startTime,
-      durationMinutes: dto.durationMinutes ?? 30,
+      durationMinutes,
       daysOfWeek: days,
       color: dto.color ?? pickRandomColor(),
       userId,
@@ -51,6 +54,7 @@ export class RoutinesService {
     }
     if (dto.startTime !== undefined) routine.startTime = dto.startTime;
     if (dto.durationMinutes !== undefined) {
+      this.assertDurationMinutes(dto.durationMinutes);
       routine.durationMinutes = dto.durationMinutes;
     }
     if (dto.daysOfWeek !== undefined) {
@@ -59,6 +63,19 @@ export class RoutinesService {
     if (dto.color !== undefined) routine.color = dto.color;
 
     return this.routinesRepo.save(routine);
+  }
+
+  private assertDurationMinutes(durationMinutes: number) {
+    if (durationMinutes <= 0) {
+      throw new BadRequestException(
+        'Длительность должна быть больше 0 минут',
+      );
+    }
+    if (durationMinutes < 5 || durationMinutes > 720) {
+      throw new BadRequestException(
+        'Длительность должна быть от 5 до 720 минут',
+      );
+    }
   }
 
   async remove(userId: string, id: string) {

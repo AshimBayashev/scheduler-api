@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { pickRandomColor } from '../common/color-palette';
@@ -35,12 +35,17 @@ export class EventsService {
   }
 
   create(userId: string, dto: CreateEventDto) {
+    const start = new Date(dto.start);
+    const end = new Date(dto.end);
+    const allDay = dto.allDay ?? false;
+    this.assertPositiveDuration(start, end, allDay);
+
     const event = this.eventsRepo.create({
       title: dto.title,
       description: dto.description?.trim() || null,
-      start: new Date(dto.start),
-      end: new Date(dto.end),
-      allDay: dto.allDay ?? false,
+      start,
+      end,
+      allDay,
       color: dto.color ?? pickRandomColor(),
       userId,
     });
@@ -59,7 +64,18 @@ export class EventsService {
     if (dto.allDay !== undefined) event.allDay = dto.allDay;
     if (dto.color !== undefined) event.color = dto.color;
 
+    this.assertPositiveDuration(event.start, event.end, event.allDay);
+
     return this.eventsRepo.save(event);
+  }
+
+  private assertPositiveDuration(start: Date, end: Date, allDay: boolean) {
+    if (allDay) return;
+    if (end.getTime() <= start.getTime()) {
+      throw new BadRequestException(
+        'Конец дела должен быть позже начала',
+      );
+    }
   }
 
   async remove(userId: string, id: string) {
