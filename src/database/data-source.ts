@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { EventEntity } from '../events/event.entity';
+import { Routine } from '../routines/routine.entity';
 import { User } from '../users/user.entity';
 
 config();
@@ -15,7 +16,7 @@ export default new DataSource({
   username: process.env.DB_USER ?? 'scheduler',
   password: process.env.DB_PASSWORD ?? 'scheduler',
   database: process.env.DB_NAME ?? 'scheduler',
-  entities: [User, EventEntity],
+  entities: [User, EventEntity, Routine],
   migrations: isCompiled
     ? ['dist/database/migrations/*.js']
     : ['src/database/migrations/*.ts'],

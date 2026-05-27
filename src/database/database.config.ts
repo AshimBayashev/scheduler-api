@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { EventEntity } from '../events/event.entity';
+import { Routine } from '../routines/routine.entity';
 import { User } from '../users/user.entity';
 
 export default registerAs(
@@ -12,7 +13,7 @@ export default registerAs(
     username: process.env.DB_USER ?? 'scheduler',
     password: process.env.DB_PASSWORD ?? 'scheduler',
     database: process.env.DB_NAME ?? 'scheduler',
-    entities: [User, EventEntity],
+    entities: [User, EventEntity, Routine],
     synchronize: false,
     migrations: ['dist/database/migrations/*.js'],
   }),
