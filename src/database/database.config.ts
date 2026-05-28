@@ -1,6 +1,8 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { EventEntity } from '../events/event.entity';
+import { PushSubscription, SentReminder } from '../notifications/push-subscription.entity';
+import { TelegramLinkToken } from '../notifications/telegram-link.entity';
 import { Routine } from '../routines/routine.entity';
 import { User } from '../users/user.entity';
 
@@ -13,7 +15,7 @@ export default registerAs(
     username: process.env.DB_USER ?? 'scheduler',
     password: process.env.DB_PASSWORD ?? 'scheduler',
     database: process.env.DB_NAME ?? 'scheduler',
-    entities: [User, EventEntity, Routine],
+    entities: [User, EventEntity, Routine, PushSubscription, SentReminder, TelegramLinkToken],
     synchronize: false,
     migrations: ['dist/database/migrations/*.js'],
   }),

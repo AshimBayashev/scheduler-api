@@ -31,6 +31,10 @@ export class EventEntity {
   @Column({ default: '#6264A7' })
   color: string;
 
+  /** null = напоминание выключено */
+  @Column({ type: 'integer', nullable: true, default: 15 })
+  reminderMinutesBefore: number | null;
+
   @ManyToOne(() => User, (user) => user.events, { onDelete: 'CASCADE' })
   user: User;
 

@@ -9,8 +9,10 @@ import {
   Min,
   MinLength,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 import { COLOR_PALETTE } from '../../common/color-palette';
+import { REMINDER_MINUTES_OPTIONS } from '../../common/reminder-options';
 
 export class CreateRoutineDto {
   @IsString()
@@ -41,4 +43,10 @@ export class CreateRoutineDto {
   @IsString()
   @IsIn([...COLOR_PALETTE])
   color?: string;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsInt()
+  @IsIn([...REMINDER_MINUTES_OPTIONS])
+  reminderMinutesBefore?: number | null;
 }

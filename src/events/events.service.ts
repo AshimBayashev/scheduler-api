@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { pickRandomColor } from '../common/color-palette';
+import { DEFAULT_REMINDER_MINUTES } from '../common/reminder-options';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventEntity } from './event.entity';
@@ -47,6 +48,10 @@ export class EventsService {
       end,
       allDay,
       color: dto.color ?? pickRandomColor(),
+      reminderMinutesBefore:
+        dto.reminderMinutesBefore !== undefined
+          ? dto.reminderMinutesBefore
+          : DEFAULT_REMINDER_MINUTES,
       userId,
     });
     return this.eventsRepo.save(event);
@@ -63,6 +68,9 @@ export class EventsService {
     if (dto.end !== undefined) event.end = new Date(dto.end);
     if (dto.allDay !== undefined) event.allDay = dto.allDay;
     if (dto.color !== undefined) event.color = dto.color;
+    if (dto.reminderMinutesBefore !== undefined) {
+      event.reminderMinutesBefore = dto.reminderMinutesBefore;
+    }
 
     this.assertPositiveDuration(event.start, event.end, event.allDay);
 

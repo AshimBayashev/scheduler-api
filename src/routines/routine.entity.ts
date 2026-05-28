@@ -36,6 +36,10 @@ export class Routine {
   @Column({ default: true })
   active: boolean;
 
+  /** null = напоминание выключено */
+  @Column({ type: 'integer', nullable: true, default: 15 })
+  reminderMinutesBefore: number | null;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 

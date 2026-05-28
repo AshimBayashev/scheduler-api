@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { pickRandomColor } from '../common/color-palette';
+import { DEFAULT_REMINDER_MINUTES } from '../common/reminder-options';
 import { CreateRoutineDto } from './dto/create-routine.dto';
 import { UpdateRoutineDto } from './dto/update-routine.dto';
 import { Routine } from './routine.entity';
@@ -40,6 +41,10 @@ export class RoutinesService {
       durationMinutes,
       daysOfWeek: days,
       color: dto.color ?? pickRandomColor(),
+      reminderMinutesBefore:
+        dto.reminderMinutesBefore !== undefined
+          ? dto.reminderMinutesBefore
+          : DEFAULT_REMINDER_MINUTES,
       userId,
     });
     return this.routinesRepo.save(routine);
@@ -61,6 +66,9 @@ export class RoutinesService {
       routine.daysOfWeek = [...new Set(dto.daysOfWeek)].sort((a, b) => a - b);
     }
     if (dto.color !== undefined) routine.color = dto.color;
+    if (dto.reminderMinutesBefore !== undefined) {
+      routine.reminderMinutesBefore = dto.reminderMinutesBefore;
+    }
 
     return this.routinesRepo.save(routine);
   }

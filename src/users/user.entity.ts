@@ -21,6 +21,12 @@ export class User {
   @Column({ type: 'varchar', nullable: true })
   name: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  timezone: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  telegramChatId: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 
