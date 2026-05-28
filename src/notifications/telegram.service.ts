@@ -19,7 +19,7 @@ export class TelegramService implements OnModuleInit {
   constructor(private readonly config: ConfigService) {}
 
   async onModuleInit() {
-    this.token = this.config.get<string>('TELEGRAM_BOT_TOKEN') ?? null;
+    this.token = this.readToken();
     if (!this.token) {
       this.logger.warn(
         'TELEGRAM_BOT_TOKEN not set — Telegram reminders disabled',
@@ -40,6 +40,15 @@ export class TelegramService implements OnModuleInit {
 
   isEnabled(): boolean {
     return !!this.token;
+  }
+
+  private readToken(): string | null {
+    const raw =
+      this.config.get<string>('TELEGRAM_BOT_TOKEN') ??
+      process.env.TELEGRAM_BOT_TOKEN ??
+      '';
+    const trimmed = raw.trim().replace(/^["']|["']$/g, '');
+    return trimmed || null;
   }
 
   getBotUsername(): string | null {
