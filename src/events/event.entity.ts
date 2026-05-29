@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,6 +10,7 @@ import {
 import { User } from '../users/user.entity';
 
 @Entity('events')
+@Index(['userId', 'start'])
 export class EventEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

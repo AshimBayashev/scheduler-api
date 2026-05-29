@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, In, IsNull, Not, Repository } from 'typeorm';
 import { EventEntity } from '../events/event.entity';
 import { Routine } from '../routines/routine.entity';
 import { User } from '../users/user.entity';
@@ -12,6 +12,10 @@ import {
   getRoutineReminderCandidates,
 } from './reminder.utils';
 import { TelegramService } from './telegram.service';
+
+const MS_PER_DAY = 86_400_000;
+
+type RecipientUser = Pick<User, 'id' | 'timezone' | 'telegramChatId'>;
 
 @Injectable()
 export class ReminderSchedulerService {
@@ -38,28 +42,43 @@ export class ReminderSchedulerService {
       return;
     }
 
+    const recipients = await this.getRecipientUsers();
+    if (recipients.length === 0) {
+      return;
+    }
+
+    const recipientIds = recipients.map((u) => u.id);
+    const tzByUser = new Map(
+      recipients.map((u) => [u.id, u.timezone ?? 'Asia/Almaty']),
+    );
+    const telegramByUser = new Map(
+      recipients.map((u) => [u.id, u.telegramChatId ?? null]),
+    );
+
     const now = new Date();
     const windowStart = new Date(now);
     windowStart.setSeconds(0, 0);
     const windowEnd = new Date(windowStart.getTime() + 60_000);
 
-    const events = await this.eventsRepo.find({
-      where: {
-        start: Between(
-          new Date(windowStart.getTime() - 86_400_000),
-          new Date(windowEnd.getTime() + 86_400_000),
-        ),
-      },
-    });
-
-    const routines = await this.routinesRepo.find({ where: { active: true } });
-    const users = await this.usersRepo.find();
-    const tzByUser = new Map(
-      users.map((u) => [u.id, u.timezone ?? 'Asia/Almaty']),
-    );
-    const telegramByUser = new Map(
-      users.map((u) => [u.id, u.telegramChatId ?? null]),
-    );
+    const [events, routines] = await Promise.all([
+      this.eventsRepo.find({
+        where: {
+          userId: In(recipientIds),
+          reminderMinutesBefore: Not(IsNull()),
+          start: Between(
+            new Date(windowStart.getTime() - MS_PER_DAY),
+            new Date(windowEnd.getTime() + MS_PER_DAY),
+          ),
+        },
+      }),
+      this.routinesRepo.find({
+        where: {
+          userId: In(recipientIds),
+          active: true,
+          reminderMinutesBefore: Not(IsNull()),
+        },
+      }),
+    ]);
 
     const candidates = [
       ...events
@@ -78,6 +97,18 @@ export class ReminderSchedulerService {
     for (const candidate of candidates) {
       await this.dispatch(candidate, telegramByUser.get(candidate.userId));
     }
+  }
+
+  /** Пользователи с push-подпиской или привязанным Telegram. */
+  private async getRecipientUsers(): Promise<RecipientUser[]> {
+    return this.usersRepo
+      .createQueryBuilder('u')
+      .select(['u.id', 'u.timezone', 'u.telegramChatId'])
+      .leftJoin(PushSubscription, 'ps', 'ps.userId = u.id')
+      .where('u.telegramChatId IS NOT NULL')
+      .orWhere('ps.id IS NOT NULL')
+      .distinct(true)
+      .getMany();
   }
 
   private async dispatch(

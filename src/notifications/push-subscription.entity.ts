@@ -11,6 +11,7 @@ import { User } from '../users/user.entity';
 
 @Entity('push_subscriptions')
 @Unique(['endpoint'])
+@Index(['userId'])
 export class PushSubscription {
   @PrimaryGeneratedColumn('uuid')
   id: string;
