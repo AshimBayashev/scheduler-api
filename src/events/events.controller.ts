@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -12,6 +13,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateEventDto } from './dto/create-event.dto';
+import { EventsRangeQueryDto } from './dto/events-range-query.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventsService } from './events.service';
 
@@ -23,14 +25,16 @@ export class EventsController {
   @Get()
   findAll(
     @CurrentUser() user: { id: string },
-    @Query('from') from?: string,
-    @Query('to') to?: string,
+    @Query() query: EventsRangeQueryDto,
   ) {
-    return this.eventsService.findAll(user.id, from, to);
+    return this.eventsService.findAll(user.id, query.from, query.to);
   }
 
   @Get(':id')
-  findOne(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+  findOne(
+    @CurrentUser() user: { id: string },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     return this.eventsService.findOne(user.id, id);
   }
 
@@ -42,14 +46,17 @@ export class EventsController {
   @Patch(':id')
   update(
     @CurrentUser() user: { id: string },
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateEventDto,
   ) {
     return this.eventsService.update(user.id, id, dto);
   }
 
   @Delete(':id')
-  remove(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+  remove(
+    @CurrentUser() user: { id: string },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     return this.eventsService.remove(user.id, id);
   }
 }

@@ -5,6 +5,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  MaxLength,
   MinLength,
   ValidateIf,
 } from 'class-validator';
@@ -14,10 +15,12 @@ import { REMINDER_MINUTES_OPTIONS } from '../../common/reminder-options';
 export class CreateEventDto {
   @IsString()
   @MinLength(1)
+  @MaxLength(200)
   title: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   description?: string;
 
   @IsDateString()

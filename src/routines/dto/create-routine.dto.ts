@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   Max,
+  MaxLength,
   Min,
   MinLength,
   Matches,
@@ -17,10 +18,12 @@ import { REMINDER_MINUTES_OPTIONS } from '../../common/reminder-options';
 export class CreateRoutineDto {
   @IsString()
   @MinLength(1)
+  @MaxLength(200)
   title: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   description?: string;
 
   @Matches(/^([01]\d|2[0-3]):[0-5]\d$/)

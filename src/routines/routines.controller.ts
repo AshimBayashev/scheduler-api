@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   UseGuards,
@@ -25,7 +26,10 @@ export class RoutinesController {
   }
 
   @Get(':id')
-  findOne(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+  findOne(
+    @CurrentUser() user: { id: string },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     return this.routinesService.findOne(user.id, id);
   }
 
@@ -37,14 +41,17 @@ export class RoutinesController {
   @Patch(':id')
   update(
     @CurrentUser() user: { id: string },
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateRoutineDto,
   ) {
     return this.routinesService.update(user.id, id, dto);
   }
 
   @Delete(':id')
-  remove(@CurrentUser() user: { id: string }, @Param('id') id: string) {
+  remove(
+    @CurrentUser() user: { id: string },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     return this.routinesService.remove(user.id, id);
   }
 }

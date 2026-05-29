@@ -3,9 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { pickRandomColor } from '../common/color-palette';
 import { DEFAULT_REMINDER_MINUTES } from '../common/reminder-options';
+import { MAX_EVENTS_RANGE_DAYS } from './dto/events-range-query.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventEntity } from './event.entity';
+
+const MS_PER_DAY = 86_400_000;
 
 @Injectable()
 export class EventsService {
@@ -17,8 +20,30 @@ export class EventsService {
   findAll(userId: string, from?: string, to?: string) {
     const where: Record<string, unknown> = { userId };
 
-    if (from && to) {
-      where.start = Between(new Date(from), new Date(to));
+    if (from || to) {
+      if (!from || !to) {
+        throw new BadRequestException('Укажите оба параметра from и to');
+      }
+
+      const fromDate = new Date(from);
+      const toDate = new Date(to);
+
+      if (Number.isNaN(fromDate.getTime()) || Number.isNaN(toDate.getTime())) {
+        throw new BadRequestException('Некорректный формат дат');
+      }
+
+      if (toDate <= fromDate) {
+        throw new BadRequestException('Параметр to должен быть позже from');
+      }
+
+      const rangeDays = (toDate.getTime() - fromDate.getTime()) / MS_PER_DAY;
+      if (rangeDays > MAX_EVENTS_RANGE_DAYS) {
+        throw new BadRequestException(
+          `Диапазон не может превышать ${MAX_EVENTS_RANGE_DAYS} дней`,
+        );
+      }
+
+      where.start = Between(fromDate, toDate);
     }
 
     return this.eventsRepo.find({
