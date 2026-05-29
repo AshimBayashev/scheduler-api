@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+set -e
+echo "Running API tests before push..."
+npm test
