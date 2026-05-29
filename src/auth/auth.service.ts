@@ -38,7 +38,12 @@ export class AuthService {
     return this.usersService.toPublic(user);
   }
 
-  async login(user: { id: string; email: string; name: string | null }) {
+  async login(user: {
+    id: string;
+    email: string;
+    name: string | null;
+    avatarUrl?: string | null;
+  }) {
     return this.buildAuthResponse(user);
   }
 
@@ -46,6 +51,7 @@ export class AuthService {
     id: string;
     email: string;
     name?: string | null;
+    avatarUrl?: string | null;
     createdAt?: Date;
   }) {
     const payload = { sub: user.id, email: user.email };
@@ -55,6 +61,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name ?? null,
+        avatarUrl: user.avatarUrl ?? null,
         createdAt: user.createdAt ?? new Date(),
       },
     };
