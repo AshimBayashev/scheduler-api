@@ -1,4 +1,4 @@
-import { IsDateString, IsOptional } from 'class-validator';
+import { IsDateString, IsIn, IsOptional, IsUUID } from 'class-validator';
 
 export class EventsRangeQueryDto {
   @IsOptional()
@@ -8,6 +8,14 @@ export class EventsRangeQueryDto {
   @IsOptional()
   @IsDateString()
   to?: string;
+
+  @IsOptional()
+  @IsUUID()
+  forUserId?: string;
+
+  @IsOptional()
+  @IsIn(['family'])
+  scope?: 'family';
 }
 
 /** Max calendar fetch window (matches UI month/week views). */

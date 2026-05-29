@@ -1,6 +1,7 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsIn,
   IsInt,
   IsOptional,
@@ -52,4 +53,8 @@ export class CreateRoutineDto {
   @IsInt()
   @IsIn([...REMINDER_MINUTES_OPTIONS])
   reminderMinutesBefore?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  hiddenFromFamily?: boolean;
 }

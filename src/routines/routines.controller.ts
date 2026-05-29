@@ -7,11 +7,13 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateRoutineDto } from './dto/create-routine.dto';
+import { RoutinesQueryDto } from './dto/routines-query.dto';
 import { UpdateRoutineDto } from './dto/update-routine.dto';
 import { RoutinesService } from './routines.service';
 
@@ -21,8 +23,15 @@ export class RoutinesController {
   constructor(private readonly routinesService: RoutinesService) {}
 
   @Get()
-  findAll(@CurrentUser() user: { id: string }) {
-    return this.routinesService.findAll(user.id);
+  findAll(
+    @CurrentUser() user: { id: string },
+    @Query() query: RoutinesQueryDto,
+  ) {
+    return this.routinesService.findAll(
+      user.id,
+      query.forUserId,
+      query.scope,
+    );
   }
 
   @Get(':id')

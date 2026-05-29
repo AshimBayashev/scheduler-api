@@ -27,7 +27,13 @@ export class EventsController {
     @CurrentUser() user: { id: string },
     @Query() query: EventsRangeQueryDto,
   ) {
-    return this.eventsService.findAll(user.id, query.from, query.to);
+    return this.eventsService.findAll(
+      user.id,
+      query.from,
+      query.to,
+      query.forUserId,
+      query.scope,
+    );
   }
 
   @Get(':id')

@@ -31,5 +31,6 @@ import { TelegramService } from './telegram.service';
     TelegramBotService,
     ReminderSchedulerService,
   ],
+  exports: [TelegramService],
 })
 export class NotificationsModule {}

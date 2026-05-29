@@ -40,6 +40,9 @@ export class Routine {
   @Column({ type: 'integer', nullable: true, default: 15 })
   reminderMinutesBefore: number | null;
 
+  @Column({ default: false })
+  hiddenFromFamily: boolean;
+
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   user: User;
 

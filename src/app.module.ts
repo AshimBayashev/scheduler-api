@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import databaseConfig from './database/database.config';
 import { EventsModule } from './events/events.module';
+import { FamilyModule } from './family/family.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { RoutinesModule } from './routines/routines.module';
 import { UsersModule } from './users/users.module';
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     EventsModule,
     RoutinesModule,
+    FamilyModule,
     NotificationsModule,
   ],
 })

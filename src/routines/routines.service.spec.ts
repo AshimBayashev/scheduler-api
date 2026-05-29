@@ -1,20 +1,46 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { FamilyService } from '../family/family.service';
 import { Routine } from './routine.entity';
 import { RoutinesService } from './routines.service';
 import { mockRepository } from '../test/mock-repository';
 
+const familyService = {
+  assertCanViewUser: jest.fn().mockResolvedValue(undefined),
+  isInFamily: jest.fn().mockResolvedValue(false),
+  getMemberIdsForViewer: jest.fn().mockResolvedValue(['user-1']),
+  getMemberNamesMap: jest.fn().mockResolvedValue(new Map()),
+};
+
+function mockQueryBuilder(getMany: Routine[] = []) {
+  return {
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    getMany: jest.fn().mockResolvedValue(getMany),
+  };
+}
+
 describe('RoutinesService', () => {
   let service: RoutinesService;
-  const repo = mockRepository<Routine>();
+  const repo = mockRepository<Routine>() as ReturnType<
+    typeof mockRepository<Routine>
+  > & {
+    createQueryBuilder: jest.Mock;
+  };
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    repo.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder());
+    familyService.assertCanViewUser.mockResolvedValue(undefined);
+    familyService.getMemberNamesMap.mockResolvedValue(new Map());
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RoutinesService,
         { provide: getRepositoryToken(Routine), useValue: repo },
+        { provide: FamilyService, useValue: familyService },
       ],
     }).compile();
 
@@ -22,12 +48,9 @@ describe('RoutinesService', () => {
   });
 
   it('findAll returns active routines for user', async () => {
-    repo.find.mockResolvedValue([]);
+    repo.createQueryBuilder.mockReturnValue(mockQueryBuilder([]));
     await service.findAll('user-1');
-    expect(repo.find).toHaveBeenCalledWith({
-      where: { userId: 'user-1', active: true },
-      order: { startTime: 'ASC' },
-    });
+    expect(repo.createQueryBuilder).toHaveBeenCalledWith('r');
   });
 
   it('findOne throws when routine missing', async () => {
@@ -55,15 +78,15 @@ describe('RoutinesService', () => {
     );
   });
 
-  it('create rejects invalid duration', () => {
-    expect(() =>
+  it('create rejects invalid duration', async () => {
+    await expect(
       service.create('user-1', {
         title: 'Run',
         startTime: '07:30',
         daysOfWeek: [1],
         durationMinutes: 2,
       }),
-    ).toThrow(BadRequestException);
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('remove soft-deletes routine', async () => {

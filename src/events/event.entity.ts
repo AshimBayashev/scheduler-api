@@ -35,6 +35,9 @@ export class EventEntity {
   @Column({ type: 'integer', nullable: true, default: 15 })
   reminderMinutesBefore: number | null;
 
+  @Column({ default: false })
+  hiddenFromFamily: boolean;
+
   @ManyToOne(() => User, (user) => user.events, { onDelete: 'CASCADE' })
   user: User;
 

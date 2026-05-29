@@ -43,4 +43,8 @@ export class CreateEventDto {
   @IsInt()
   @IsIn([...REMINDER_MINUTES_OPTIONS])
   reminderMinutesBefore?: number | null;
+
+  @IsOptional()
+  @IsBoolean()
+  hiddenFromFamily?: boolean;
 }
