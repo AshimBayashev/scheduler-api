@@ -1,4 +1,5 @@
 import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsStrongPassword, PASSWORD_MAX_LENGTH } from '../../common/password-policy';
 
 export class RegisterDto {
   @IsEmail()
@@ -6,8 +7,9 @@ export class RegisterDto {
   email: string;
 
   @IsString()
-  @MinLength(6)
-  @MaxLength(128)
+  @MinLength(8)
+  @MaxLength(PASSWORD_MAX_LENGTH)
+  @IsStrongPassword()
   password: string;
 
   @IsOptional()
